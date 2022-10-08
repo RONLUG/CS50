@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+
+{% block body %}
+    <h1>Hello, {{session["username"]}}</h1>
+    <h2>Browse course</h2>
+    {% for course in courses %}
+        <h2>{{ course["title"] }}</h2>
+    {% endfor %}
+{% endblock %}

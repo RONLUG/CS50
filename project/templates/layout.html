@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta name="viewport" content="initial-scale=1, width=device-width">
+        <title>Learnit</title>
+    </head>
+    <body>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/create-course">Create</a>
+            {% if session["username"] %}
+                <a href="/logout">Logout</a>
+            {% else %}
+                <a href="/login">Login</a>
+                <a href="/signin">Signin</a>
+            {% endif %}
+        </nav>
+        {% block body %} {% endblock %}
+    </body>
+</html>

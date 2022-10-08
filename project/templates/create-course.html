@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+
+{% block body %}
+    <h1>Create course</h1>
+    <form action="/create-course" method="post">
+        <label>
+            Title
+            <input name="title" type="text" autofocus autocomplete="off">
+        </label>
+        <label>
+            Description
+            <input name="description" type="text" autocomplete="off">
+        </label>
+        <label>
+            Tags
+            <select name="tag">
+                <option selected disabled>Tags</option>
+                {% for tag in tags %}
+                    <option value="{{ tag }}"> {{ tag }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <input type="submit" value="Create">
+    </form>
+{% endblock %}

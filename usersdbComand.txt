@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS users (
+    user_id INTEGER PRIMARY KEY,
+    username TEXT NOT NULL UNIQUE,
+    password_hashed TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS courses (
+    course_id INTEGER PRIMARY KEY,
+    description TEXT NOT NULL,
+    publisher_id TEXT NOT NULL,
+    FOREIGN KEY(publisher_id) REFERENCES users(user_id)
+);
