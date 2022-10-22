@@ -14,7 +14,7 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-
+# TODO: fix required_login decorator
 @required_login
 @app.route("/")
 def index():
@@ -31,7 +31,6 @@ def login():
         username = request.form.get("username")
         password = request.form.get("password")
         user = db.execute("SELECT * FROM users WHERE username = ?", username)
-        app.logger.info("%s", type(user))
         if len(user):
             user = user[0]
         else:
@@ -41,12 +40,13 @@ def login():
         else:
             session["username"] = username
             session["email"] = user["email"]
+            session["id"] = user["user_id"]
             return redirect("/")
     else:
         return render_template("login.html")
 
 
-@app.route("/signin", methods=["GET", "POST"])
+@app.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
         username = request.form.get("username")
@@ -60,17 +60,19 @@ def signup():
             db.execute("INSERT INTO users (username, password_hashed, email) VALUES (?, ?, ?);", username, password_hashed, email)
             session["username"] = username
             session["email"] = email
+            session["id"] = db.execute("SELECT * FROM users WHERE username = ?", username)["user_id"]
             return redirect("/")
         else:
             return render_template("error.html", code=401, description="Enter username password and email.")
     else:
-        return render_template("signin.html")
+        return render_template("signup.html")
 
 
 @app.route("/logout")
 def logout():
     session["username"] = None
     session["email"] = None
+    session["id"] = None
     return redirect("/")
 
 
@@ -89,3 +91,34 @@ def create_course():
         return redirect("/")
     else:
         return render_template("create-course.html", tags=tags)
+
+
+@app.route("/your-courses", methods=["GET"])
+def your_courses():
+    enrolls = db.execute("SELECT * FROM enrolled WHERE student_id = ?", session["id"])
+    enrolls = [enroll["course_id"] for enroll in enrolls]
+    app.logger.info(enrolls)
+    courses = db.execute("SELECT * FROM courses WHERE course_id IN (?)", enrolls)
+    app.logger.info(courses)
+    return render_template("your-courses.html", courses=courses)
+
+
+@app.route("/course/<id>", methods=["GET", "POST"])
+def course(id):
+    if request.method == "POST":
+        id = request.form.get("id")
+        course = db.execute("SELECT * FROM courses WHERE course_id = ?", id)
+        enrolled = db.execute("SELECT * FROM enrolled WHERE course_id = ? AND student_id = ?", id, session["id"])
+        if len(course) == 0:
+            return render_template("error.html", code=404, description="Course not found")
+        if len(enrolled) != 0:
+            return render_template("error.html", code=405, description="Course already enrolled")
+        db.execute("INSERT INTO enrolled (course_id, student_id) VALUES (?, ?)", id, session["id"])
+        return redirect("/")
+    else:
+        course = db.execute("SELECT * FROM courses WHERE course_id = ?", id)
+        if len(course) == 0:
+            return render_template("error.html", code=404, description="Course not found")
+        else:
+            course = course[0]
+            return render_template("course.html", course=course)

@@ -1,9 +1,18 @@
 {% extends "layout.html" %}
 
 {% block body %}
-    <h1>Hello, {{session["username"]}}</h1>
-    <h2>Browse course</h2>
+    <!-- <h1>Hello, {{session["username"]}}</h1> -->
+    <div class="container">
+        <div class="row">
+            <div class="col-6 col-sm-3">col 1</div>
+            <div class="col-6 col-sm-3">col 2</div>
+            <div class="col-6 col-sm-3">col 3</div>
+            <div class="col-6 col-sm-3">col 4</div>
+        </div>
+    </div>
+    <h2>Featured course</h2>
     {% for course in courses %}
         <h2>{{ course["title"] }}</h2>
+        <a href="course/{{course['course_id']}}">view detail</a>
     {% endfor %}
 {% endblock %}

@@ -7,7 +7,17 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS courses (
     course_id INTEGER PRIMARY KEY,
+    title TEXT NOT NULL,
     description TEXT NOT NULL,
+    tag TEXT NOT NULL,
     publisher_id TEXT NOT NULL,
     FOREIGN KEY(publisher_id) REFERENCES users(user_id)
+);
+
+CREATE TABLE IF NOT EXISTS enrolled (
+    enroll_id INTEGER PRIMARY KEY,
+    course_id TEXT NOT NULL,
+    student_id TEXT NOT NULL,
+    FOREIGN KEY(student_id) REFERENCES users(user_id),
+    FOREIGN KEY(course_id) REFERENCES courses(course_id)
 );

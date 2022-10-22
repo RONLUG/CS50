@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+<h1>{{ course["title"] }}</h1>
+<form action="/course/{{ course['course_id'] }}" method="post">
+    <input name="id" type="hidden" value="{{ course['course_id'] }}">
+    <input type="submit" value="Enroll">
+</form>
+
+{% endblock %}

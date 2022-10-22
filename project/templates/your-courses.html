@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+
+{% block body %}
+ <h1>Your courses</h1>
+    {% for course in courses %}
+        <h2>{{ course["title"] }}</h2>
+    {% endfor %}
+
+{% endblock %}
