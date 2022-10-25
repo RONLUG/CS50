@@ -1,4 +1,5 @@
 from functools import wraps
+import re
 
 def required_login(f):
     from flask import session, redirect
@@ -9,3 +10,7 @@ def required_login(f):
         else:
             return f()
     return wrapper
+
+
+def is_youtube_link(link):
+    pass
