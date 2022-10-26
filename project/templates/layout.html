@@ -33,7 +33,7 @@
                     <div class="navbar-nav secondary-nav">
                         {% if session["username"] %}
                         <li class="nav-item">
-                            <a class="nav-link" href="/logout">Logout</a>
+                            <a class="nav-link" href="/{{ session['username'] }}">{{ session["username"] }}</a>
 
                         </li>
                         {% else %}

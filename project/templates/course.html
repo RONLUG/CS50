@@ -3,13 +3,15 @@
 {% block body %}
 
 <h1>{{ course["title"] }}</h1>
+{% if course["intro_video"] %}
 <div class="intro-video-wrapper">
-    <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <iframe src="{{ course['intro_video'] }}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
+{% endif %}
 <div>
-    <p>{{ course['discription'] }}</p>
+    <p>{{ course["discription"] }}</p>
 </div>
-<form action="/course/{{ course['course_id'] }}" method="post">
+<form action="{{ publisher }}/{{ course['title'] }}" method="post">
     <input name="id" type="hidden" value="{{ course['course_id'] }}">
     <input class="btn btn-primary" type="submit" value="Enroll">
 </form>
