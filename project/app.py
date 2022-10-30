@@ -107,16 +107,6 @@ def create_course():
         return render_template("create-course.html", tags=tags)
 
 
-@app.route("/your-courses", methods=["GET"])
-def your_courses():
-    enrolls = db.execute("SELECT * FROM enrolled WHERE student_id = ?", session["id"])
-    enrolls = [enroll["course_id"] for enroll in enrolls]
-    app.logger.info(enrolls)
-    courses = db.execute("SELECT * FROM courses WHERE course_id IN (?)", enrolls)
-    app.logger.info(courses)
-    return render_template("your-courses.html", courses=courses)
-
-
 @app.route("/<publisher>/<title>", methods=["GET", "POST"])
 def course(publisher, title):
     if request.method == "POST":
@@ -151,4 +141,7 @@ def course_redirect(id):
 
 @app.route("/<username>")
 def profile(username):
-    return render_template("profile.html")
+    enrolls = db.execute("SELECT * FROM enrolled WHERE student_id = ?", session["id"])
+    enrolls = [enroll["course_id"] for enroll in enrolls]
+    courses = db.execute("SELECT * FROM courses WHERE course_id IN (?)", enrolls)
+    return render_template("profile.html", courses=courses)

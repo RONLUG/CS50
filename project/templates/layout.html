@@ -26,15 +26,14 @@
                         <li class="nav-item">
                             <a class="nav-link" href="/create-course">Create</a>
                         </li>
-                        <li class="nav-item">
+                        <!-- <li class="nav-item">
                             <a class="nav-link" href="/your-courses">Your Course</a>
-                        </li>
+                        </li> -->
                     </ul>
                     <div class="navbar-nav secondary-nav">
                         {% if session["username"] %}
                         <li class="nav-item">
                             <a class="nav-link" href="/{{ session['username'] }}">{{ session["username"] }}</a>
-
                         </li>
                         {% else %}
                         <li class="nav-item">
