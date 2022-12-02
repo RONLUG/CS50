@@ -1,0 +1,82 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+<h2>{{ course["title"] }}</h2>
+<!-- Create extendable form -->
+<!-- https://www.quirksmode.org/dom/domform.html -->
+<!-- Lecture form template -->
+<div id="readroot" style="display: none">
+
+	<input type="button" value="Remove review"
+		onclick="this.parentNode.parentNode.removeChild(this.parentNode);" /><br /><br />
+
+	<input name="cd" value="title" />
+
+    <label>
+        Lecture Clip
+        <input name="video" type="text" autocomplete="off">
+    </label>
+    <label>
+        Lecture materials
+        <input name="materials" type="file" multiple>
+    </label>
+</div>
+
+<!-- Actual form -->
+<form action="/create-course" method="post">
+    <label>
+        Title
+        <input name="title" type="text" autofocus autocomplete="off">
+    </label>
+    <label>
+        Description
+        <textarea class="text-area" name="description">{{ course['description'] }}</textarea>
+    </label>
+    <label>
+        tag
+        <select name="tag">
+            <option selected disabled>Tags</option>
+            {% for tag in tags %}
+                <option value="{{ tag }}"> {{ tag }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>
+        Intro Video
+        <input name="intro_vdo" type="text" autocomplete="off">
+    </label>
+    <label>
+        Course banner
+        <input type="file" name="banner">
+    </label>
+	<span id="writeroot"></span>
+	<input type="button" id="moreFields" value="Add lecture" />
+	<input type="submit" value="Send form" />
+</form>
+<script>
+    var counter = 0;
+
+    function moreFields() {
+        counter++;
+        var newFields = document.getElementById('readroot').cloneNode(true);
+        newFields.id = '';
+        newFields.style.display = 'block';
+        var newField = newFields.childNodes;
+        for (var i = 0; i < newField.length; i++) {
+            var theName = newField[i].name
+            if (theName)
+                newField[i].name = theName + counter;
+        }
+        var insertHere = document.getElementById('writeroot');
+        insertHere.parentNode.insertBefore(newFields, insertHere);
+    }
+
+    const moreFieldBtn = document.getElementById('moreFields')
+    moreFieldBtn.addEventListener("click", moreFields)
+
+    window.onload = moreFields;
+</script>
+
+
+{% endblock %}

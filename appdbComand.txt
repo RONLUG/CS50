@@ -21,3 +21,18 @@ CREATE TABLE IF NOT EXISTS enrolled (
     FOREIGN KEY(student_id) REFERENCES users(user_id),
     FOREIGN KEY(course_id) REFERENCES courses(course_id)
 );
+
+
+CREATE TABLE IF NOT EXISTS lectures (
+    lecture_id INTEGER PRIMARY KEY,
+    course_id INTEGER,
+    title TEXT NOT NULL,
+    video TEXT NOT NULL,
+    FOREIGN KEY(course_id) REFERENCES courses(course_id)
+);
+
+CREATE TABLE IF NOT EXISTS materials (
+    lecture_id INTEGER,
+    name TEXT NOT NULL,
+    FOREIGN KEY(lecture_id) REFERENCES lectures(lecture_id)
+);

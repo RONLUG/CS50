@@ -3,6 +3,11 @@
 {% block body %}
 
 <h1>{{ course["title"] }}</h1>
+
+{% if editable %}
+<a href="{{ url_for(request.endpoint, **request.view_args) }}/edit">edit</a>
+{% endif %}
+
 {% if course["intro_video"] %}
 <div class="intro-video-wrapper">
     <iframe src="{{ course['intro_video'] }}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -11,7 +16,7 @@
 <div>
     <p>{{ course["discription"] }}</p>
 </div>
-<form action="{{ publisher }}/{{ course['title'] }}" method="post">
+<form action="/{{ publisher }}/{{ course['title'] }}" method="post">
     <input name="id" type="hidden" value="{{ course['course_id'] }}">
     <input class="btn btn-primary" type="submit" value="Enroll">
 </form>

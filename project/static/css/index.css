@@ -23,6 +23,7 @@ body {
 
 .course-card {
     max-width: 16rem;
+    min-width: 16rem;
 }
 
 .card-container {
@@ -47,4 +48,8 @@ body {
 
 .danger-link {
     color: red;
+}
+
+.text-area {
+    width: 40em;
 }

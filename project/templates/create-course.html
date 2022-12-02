@@ -1,29 +1,139 @@
 {% extends "layout.html" %}
 
 {% block body %}
+<script>
+    var counter = 0;
+    var totalLecture;
+    function moreFields() {
+        totalLecture.value = counter;
+        var newFields = document.getElementById('readroot').cloneNode(true);
+        newFields.id = '';
+        newFields.style.display = 'block';
+        const newField = newFields.querySelectorAll("label > input");
+        for (var i = 0; i < newField.length; i++) {
+            var theName = newField[i].name
+            if (theName)
+                newField[i].name = theName + counter;
+                newField[i].dataset.index = counter;
+        }
+        var insertHere = document.getElementById('writeroot');
+        insertHere.parentNode.insertBefore(newFields, insertHere);
+        counter++;
+    }
+
+    function deleteField(btn) {
+        var updateField = btn.parentNode;
+        updateField = updateField.nextElementSibling;
+        btn.parentNode.parentNode.removeChild(btn.parentNode);
+        counter--;
+        totalLecture.value = counter;
+        // Update name of other fields
+        while(updateField)
+        {
+            const fields = updateField.querySelectorAll("label > input")
+            for (var i = 0; i < fields.length; i++)
+            {
+                var theName = fields[i].dataset.name;
+                fields[i].dataset.index = parseInt(fields[i].dataset.index) - 1;
+                fields[i].name = fields[i].dataset.name + fields[i].dataset.index;
+                console.log(fields[i].name)
+            }
+            updateField = updateField.nextElementSibling;
+        }
+    }
+
+    function changeSection(sectionIndex) {
+        const sections = document.querySelectorAll(".create-course-section")
+        sections.forEach((section) => {
+            section.style.display = "none";
+        })
+        const showSection = document.getElementById(sectionIndex)
+        showSection.style.display = "block";
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        totalLecture = document.querySelector("#total_lecture")
+        const moreFieldBtn = document.querySelector('#more_fields');
+        moreFieldBtn.addEventListener("click", moreFields);
+        moreFields();
+
+        const sections = document.querySelectorAll(".create-course-navigation")
+        sections.forEach((btn) => {
+            btn.onclick = ()=>{changeSection(btn.dataset.sectionId)};
+        })
+        changeSection(sections[0].dataset.sectionId);
+    })
+
+</script>
     <h1>Create course</h1>
-    <form action="/create-course" method="post">
-        <label>
-            Title
-            <input name="title" type="text" autofocus autocomplete="off">
-        </label>
-        <label>
-            Description
-            <input name="description" type="text" autocomplete="off">
-        </label>
-        <label>
-            Tags
-            <select name="tag">
-                <option selected disabled>Tags</option>
-                {% for tag in tags %}
-                    <option value="{{ tag }}"> {{ tag }}</option>
-                {% endfor %}
-            </select>
-        </label>
-        <label>
-            Intro Video (youtube link)
-            <input name="intro_vdo" type="text" autocomplete="off">
-        </label>
-        <input type="submit" value="Create">
-    </form>
+
+<!-- Create extendable form -->
+<!-- https://www.quirksmode.org/dom/domform.html -->
+<!-- Lecture form template -->
+<div id="readroot" style="display: none">
+
+	<input id ="removeFieldBtn" type="button" value="Remove review" onclick="deleteField(this)"/><br /><br />
+    <label>
+        <input data-name="title" name="title" placeholder="Title" />
+    </label>
+    <label>
+        Lecture Clip
+        <input data-name="video" name="video" type="text" autocomplete="off">
+    </label>
+    <label>
+        Lecture materials
+        <input data-name="materials" name="materials" type="file" multiple>
+    </label>
+</div>
+
+<!-- Actual form -->
+<form action="/create-course" method="post" enctype="multipart/form-data">
+    <!-- Add basic info -->
+    <div class="create-course-section" id="basic-info">
+        <div class="form-group">
+            <label>
+                Title
+                <input class="form-control" name="title" type="text" autofocus autocomplete="off">
+            </label>
+        </div>
+        <div class="form-group">
+            <label>
+                Description
+                <textarea class="form-control" name="description"></textarea>
+            </label>
+        </div>
+        <div class="form-group">
+            <label>
+                tag
+                <select class="form-control" name="tag">
+                    <option selected disabled>Tags</option>
+                    {% for tag in tags %}
+                        <option value="{{ tag }}"> {{ tag }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
+        <div class="form-group">
+            <label>
+                Intro Video
+                <input class="form-control" name="intro_vdo" type="text" autocomplete="off">
+            </label>
+        </div>
+        <div class="form-group">
+            <label>
+                Course banner
+                <input class="form-control-file" type="file" name="banner">
+            </label>
+        </div>
+    </div>
+    <!-- Add Lectures -->
+    <div class="create-course-section" id="lectures">
+        <span id="writeroot"></span>
+        <input type="button" id="more_fields" value="Add lecture" />
+        <input type="hidden" id="total_lecture" name="total_lecture" value="0">
+        <input type="submit" value="Publish course" />
+    </div>
+</form>
+<input type="button" data-section-id="basic-info" class="create-course-navigation" value="<-">
+<input type="button" data-section-id="lectures" class="create-course-navigation" value="->">
 {% endblock %}
