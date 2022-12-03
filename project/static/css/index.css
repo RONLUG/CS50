@@ -8,6 +8,11 @@ body {
     background: var(--primary);
 }
 
+.page-headline {
+    margin: 1em;
+    text-align: center;
+}
+
 .navbar, .navbar-container {
     background: var(--secondary);
 }
@@ -52,4 +57,33 @@ body {
 
 .text-area {
     width: 40em;
+}
+.form-container {
+    padding: 2rem;
+    padding-top: 0;
+}
+
+.lecture-form-container {
+    padding: 2rem;
+    padding-bottom: 1rem;
+    background: #EFEFEF;
+    margin-bottom: 1rem;
+    position: relative;
+    border-radius: 12px;
+}
+
+.trash-icon {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+}
+
+.plus-container {
+    border: solid 1px black;
+    border-radius: 12px;
+    padding: 0.25rem;
+}
+
+.plus-icon {
+    margin: auto;
 }
