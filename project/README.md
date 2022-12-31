@@ -2,7 +2,7 @@
 ## Description
 This is my cs50 final project! This website implemented using Flask framework with cs50 library. The website is intended to be a website for hosting free online courses that available for everyone.
 ## Video Demo
-(urllink)[https//]
+https://youtu.be/37Q6R-aqX9g
 
 ## Project Structure
 - ```/static```
