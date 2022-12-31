@@ -5,13 +5,12 @@
     var counter = 0;
     var totalLecture;
     function moreFields() {
-        totalLecture.value = counter;
         var newFields = document.getElementById('readroot').cloneNode(true);
         newFields.id = '';
         newFields.style.display = 'block';
         const deleteBtn = newFields.querySelector("#removeFieldBtn")
         console.log(deleteBtn)
-        deleteBtn.addEventListener("click", ()=>{deleteField(deleteBtn)})
+        deleteBtn.addEventListener("click", () => { deleteField(deleteBtn) })
         const newField = newFields.querySelectorAll(".clone-input-container > input");
         for (var i = 0; i < newField.length; i++) {
             var theName = newField[i].name
@@ -22,13 +21,14 @@
         var insertHere = document.getElementById('writeroot');
         insertHere.parentNode.insertBefore(newFields, insertHere);
         counter++;
+        totalLecture.value = counter;
     }
 
     function deleteField(btn) {
         console.log(btn)
-        var updateField = btn.parentNode;
+        var updateField = btn.parentNode.parentNode;
         updateField = updateField.nextElementSibling;
-        btn.parentNode.parentNode.removeChild(btn.parentNode);
+        btn.parentNode.parentNode.parentNode.removeChild(btn.parentNode.parentNode);
         counter--;
         totalLecture.value = counter;
         // Update name of other fields
@@ -44,6 +44,8 @@
         }
     }
 
+    var currentShowSection = "basic-info"
+
     function changeSection(sectionIndex) {
         const sections = document.querySelectorAll(".create-course-section")
         sections.forEach((section) => {
@@ -51,6 +53,29 @@
         })
         const showSection = document.getElementById(sectionIndex)
         showSection.style.display = "block";
+        currentShowSection = sectionIndex
+    }
+
+    function changeSectionBtnDisplay() {
+        const sections = document.querySelectorAll(".create-course-section")
+        const showSection = document.getElementById(currentShowSection)
+        const navBtn = document.querySelectorAll(".create-course-navigation")
+        navBtn.forEach((btn) => {
+            if (btn.dataset.sectionId == currentShowSection) {
+                btn.style.opacity = 0.3
+            }
+            else {
+                btn.style.opacity = 1.0
+            }
+        })
+
+        const submitBtn = document.querySelector("#submitBtn")
+        console.log(showSection)
+        console.log(sections[sections.length - 1])
+        if (showSection == sections[sections.length - 1])
+        {
+            submitBtn.disabled = false
+        }
     }
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -61,9 +86,13 @@
 
         const sections = document.querySelectorAll(".create-course-navigation")
         sections.forEach((btn) => {
-            btn.onclick = () => { changeSection(btn.dataset.sectionId) };
+            btn.onclick = () => {
+                changeSection(btn.dataset.sectionId)
+                changeSectionBtnDisplay()
+            };
         })
         changeSection(sections[0].dataset.sectionId);
+        changeSectionBtnDisplay()
     })
 
 </script>
@@ -77,64 +106,74 @@
         <legend>Lecture</legend>
         <i id="removeFieldBtn" class="fa-solid fa-trash trash-icon"></i>
         <div class="form-group clone-input-container">
-            <!-- <label>Title</label> -->
             <input class="form-control" data-name="title" name="title" placeholder="Title" autocomplete="off">
         </div>
         <div class="form-group clone-input-container">
-            <!-- <label>Lecture clip</label> -->
-            <input class="form-control" data-name="video" name="video" type="text" placeholder="Lecture clip" autocomplete="off">
+            <input class="form-control" data-name="video" name="video" type="text" placeholder="Lecture clip"
+                autocomplete="off">
         </div>
         <div class="form-group clone-input-container">
-            <!-- <label>Lecture materials</label> -->
             <input class="form-control-file" data-name="materials" name="materials" type="file" multiple>
         </div>
     </div>
 </div>
 
 <!-- Actual form -->
-<div class="form-container">
-<form action="/create-course" method="post" enctype="multipart/form-data">
-    <!-- Add basic info -->
-    <div class="create-course-section" id="basic-info">
-        <div class="form-group">
-            <label for="course-title-input">Title</label>
-            <input class="form-control" id="course-title-input" name="title" type="text" autofocus autocomplete="off">
+<div class="formucontainer">
+    <form action="/create-course" method="post" enctype="multipart/form-data">
+        <!-- Add basic info -->
+        <div class="create-course-section" id="basic-info">
+            <div class="form-group">
+                <label for="course-title-input">Title</label>
+                <input class="form-control" id="course-title-input" name="title" type="text" autofocus
+                    autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea class="form-control long-form" name="description"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Tags</label>
+                <select class="form-control" name="tag">
+                    <option selected disabled>Tags</option>
+                    {% for tag in tags %}
+                    <option value="{{ tag }}"> {{ tag }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Intro video</label>
+                <input class="form-control" name="intro_vdo" type="text" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label>Course banner</label>
+                <input class="form-control-file" type="file" name="banner">
+            </div>
         </div>
-        <div class="form-group">
-            <label>Description</label>
-            <textarea class="form-control long-form" name="description"></textarea>
+        <!-- Add Lectures -->
+        <div class="create-course-section" id="lectures">
+            <span id="writeroot"></span>
+            <!-- <input type="button" id="more_fields" value="Add lecture" /> -->
+            <div class="plus-container" id="more_fields">
+                <i class="fa-solid fa-plus fa-2x plus-icon"></i>
+            </div>
+            <input type="hidden" id="total_lecture" name="total_lecture" value="0">
         </div>
-        <div class="form-group">
-            <label>Tags</label>
-            <select class="form-control" name="tag">
-                <option selected disabled>Tags</option>
-                {% for tag in tags %}
-                <option value="{{ tag }}"> {{ tag }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="form-group">
-            <label>Intro video</label>
-            <input class="form-control" name="intro_vdo" type="text" autocomplete="off">
-        </div>
-        <div class="form-group">
-            <label>Course banner</label>
-            <input class="form-control-file" type="file" name="banner">
-        </div>
-    </div>
-    <!-- Add Lectures -->
-    <div class="create-course-section" id="lectures">
-        <span id="writeroot"></span>
-        <!-- <input type="button" id="more_fields" value="Add lecture" /> -->
-        <div class="plus-container">
-            <i class="fa-solid fa-plus fa-4x plus-icon" id="more_fields"></i>
-        </div>
-        <input type="hidden" id="total_lecture" name="total_lecture" value="0">
-        <input type="submit" value="Publish course" />
-    </div>
 
 </div>
+<div class="create-course-nav-container">
+    <div>
+        <i class="fa-solid fa-angle-left fa-2xl create-course-navigation" data-section-id="basic-info"
+            id="basic-info-nav"></i>
+    </div>
+    <div>
+        <input type="submit" value="Publish course" id="submitBtn" disabled/>
+    </div>
+    <div>
+        <i class="fa-solid fa-angle-right fa-2xl create-course-navigation" data-section-id="lectures"
+            id="lectures-nav"></i>
+    </div>
+</div>
 </form>
-<i class="fa-solid fa-angle-left fa-2xl create-course-navigation" data-section-id="basic-info"></i>
-<i class="fa-solid fa-angle-right fa-2xl create-course-navigation" data-section-id="lectures"></i>
+
 {% endblock %}

@@ -1,7 +1,8 @@
 {% extends "layout.html" %}
 
 {% block body %}
-<h2>{{ session["username"] }}</h2>
+<h3 class="page-headline">-{{ session["username"] }}-</h3>
+<!-- <h2>{{ session["username"] }}</h2> -->
 <div class="row">
     <div class="col-3">
         <ul class="nav flex-column nav-tabs" id="myTab" role="tablist" aria-orientation="vertical">
@@ -19,16 +20,23 @@
         <div class="tab-content" id="myTabContent">
             <!-- Enrolled courses tab -->
             <div class="tab-pane fade show active" id="enrolled" role="tabpanel" aria-labelledby="enrolled-tab">
-                <h1>Your courses</h1>
-                {% for course in courses %}
-                <h2>{{ course["title"] }}</h2>
-                {% endfor %}
+                <h4>Starred courses</h4>
+                <ul>
+                    {% for course in courses %}
+                        <li>
+                            <h5>
+                                <a href="/course/{{ course['course_id'] }}"> {{ course["title"] }} </a>
+                            </h5>
+                        </li>
+                    {% endfor %}
+                </ul>
             </div>
 
             <!-- Account tab -->
             <div class="tab-pane fade" id="account" role="tabpanel" aria-labelledby="account-tab">
-                Account tab
+                You are login as
                 {{ session["username"] }}
+                <br>
                 <a class="danger-link" href="/logout">Logout</a>
             </div>
         </div>

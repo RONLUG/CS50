@@ -1,1 +1,0 @@
-# Welcome to my CS50 final project

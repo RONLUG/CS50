@@ -8,6 +8,16 @@ body {
     background: var(--primary);
 }
 
+.footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    background: var(--secondary);
+    margin-top: 3rem;
+    width: 100%;
+    min-height: 4rem;
+}
+
 .page-headline {
     margin: 1em;
     text-align: center;
@@ -17,6 +27,9 @@ body {
     background: var(--secondary);
 }
 
+.navbar-dark.navbartoggler {
+    border: None;
+}
 .navbar {
     margin: 0;
     padding: 0;
@@ -26,26 +39,45 @@ body {
     margin-left:auto;
 }
 
+.card-deck .card {
+    margin-left: 0rem;
+    margin-right: 0rem;
+}
 .course-card {
     max-width: 16rem;
     min-width: 16rem;
 }
 
-.card-container {
-    display: flex;
-    flex-direction: row;
-    gap: 2rem;
-    flex-wrap: wrap;
+.course-card-deck {
+    row-gap: 1.25rem;
+    gap: 1rem;
+    justify-content: center;
 }
 
-.intro-video-wrapper {
+.card-img-top {
+    height: 8rem;
+    width: 100%;
+    object-fit: cover;
+}
+.card-img-container {
+    height: 3rem;
+    width: auto;
+}
+
+.video-wrapper-container {
+    width: 80%;
+    margin: 0rem auto;
+    margin-bottom: 2rem;
+}
+
+.video-wrapper {
     width: 100%;
     height: 0;
     padding-bottom: 56.25%;
     position: relative;
 }
 
-.intro-video-wrapper iframe {
+.video-wrapper iframe {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -53,6 +85,24 @@ body {
 
 .danger-link {
     color: red;
+}
+small {
+    margin-bottom: 1rem;
+}
+.test {
+    width: 2em;
+    text-align: center;
+    border: 2px solid black
+}
+
+.create-course-nav-container {
+    display: flex;
+    justify-content: space-evenly;
+    margin-top: 2rem;
+}
+
+.create-course-navigation {
+    margin: auto 0;
 }
 
 .text-area {
@@ -79,11 +129,39 @@ body {
 }
 
 .plus-container {
-    border: solid 1px black;
+    border: solid 1px #495057;
     border-radius: 12px;
     padding: 0.25rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .plus-icon {
-    margin: auto;
+    margin: 1rem auto;
+}
+
+/* Course & Lecture*/
+.course-description {
+    text-indent: 4em;
+    text-align: justify;
+}
+
+.btn-favourite.btn-primary {
+    color: #007bff;
+    background: None;
+    border: None;
+}
+.btn-favourite.btn-primary:hover {
+    color: #fff;
+    background: #007bff;
+    border: #007bff;
+}
+
+.course-lecture {
+    list-style: None;
+}
+
+.breadcrumb {
+    background: None;
 }

@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+
+{% block body %}
+    <h1>Singup</h1>
+    <form action="/signup" method="post">
+        <div class="form-group">
+            <label>
+                E-mail
+                <input class="form-control" name="email" type="email" autofocus autocomplete="off">
+            </label>
+        </div>
+        <div class="form-group">
+            <label>
+                Username
+                <input class="form-control" name="username" type="text" autocomplete="off">
+            </label>
+        </div>
+        <div class="form-group">
+            <label>
+                Password
+                <input class="form-control" name="password" type="password">
+            </label>
+        </div>
+        <small><a href="/login">Already have an account?</a></small>
+        <br>
+        <input class="btn btn-primary" type="submit" value="Signup">
+    </form>
+{% endblock %}

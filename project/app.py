@@ -1,5 +1,5 @@
 from cs50 import SQL
-from flask import Flask, render_template, request, session, redirect
+from flask import Flask, render_template, request, session, redirect, send_file
 from flask_session import Session
 from werkzeug.security import generate_password_hash, check_password_hash
 from utils import required_login, video_id, youtube_link
@@ -24,15 +24,11 @@ def save_file(file):
     file.save(f_path)
     return f_name
 
-# TODO: fix required_login decorator
-@required_login
 @app.route("/")
+@required_login
 def index():
-    if session.get("username"):
-        courses = db.execute("SELECT * FROM courses")
-        return render_template("index.html", courses=courses)
-    else:
-        return redirect("/login")
+    courses = db.execute("SELECT * FROM courses")
+    return render_template("index.html", courses=courses)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -70,7 +66,7 @@ def signup():
             db.execute("INSERT INTO users (username, password_hashed, email) VALUES (?, ?, ?);", username, password_hashed, email)
             session["username"] = username
             session["email"] = email
-            session["id"] = db.execute("SELECT * FROM users WHERE username = ?", username)["user_id"]
+            session["id"] = db.execute("SELECT * FROM users WHERE username = ?", username)[0]["user_id"]
             return redirect("/")
         else:
             return render_template("error.html", code=401, description="Enter username password and email.")
@@ -86,8 +82,8 @@ def logout():
     return redirect("/")
 
 
-@required_login
 @app.route("/create-course", methods=["GET", "POST"])
+@required_login
 def create_course():
     if request.method == "POST":
         # Get form data
@@ -96,19 +92,18 @@ def create_course():
         tag = request.form.get("tag")
         intro_vdo = request.form.get("intro_vdo")
         banner = request.files["banner"]
-        totalLecture = int(request.form.get("total_lecture")) + 1
+        totalLecture = int(request.form.get("total_lecture"))
         lectures = []
+        app.logger.info(totalLecture)
         for i in range(totalLecture):
             lecture = dict()
             lecture["title"] = request.form.get(f"title{i}")
             lecture["video"] = request.form.get(f"video{i}")
             lecture["materials"] = request.files.getlist(f"materials{i}")
-            app.logger.info(f"title: {lecture['title']}")
-            app.logger.info(f"video: {lecture['video']}")
-            app.logger.info(f"materials: {lecture['materials']}")
+            # app.logger.info(f"title: {lecture['title']}")
+            # app.logger.info(f"video: {lecture['video']}")
+            # app.logger.info(f"materials: {lecture['materials']}")
             lectures.append(lecture)
-        # app.logger.info(f"banner: {banner}")
-        app.logger.info(f"banner type: {type(banner)}")
 
 
         # Validate data
@@ -130,12 +125,13 @@ def create_course():
         course_id = db.execute("SELECT * FROM courses WHERE title = ? AND publisher_id = ?", title, id)[0]["course_id"]
 
         # Save files
-        banner_name = save_file(banner)
-        db.execute("UPDATE courses SET banner = ? WHERE course_id = ?", banner_name, course_id)
+        if banner:
+            app.logger.info(f"banner{banner}")
+            banner_name = save_file(banner)
+            db.execute("UPDATE courses SET banner = ? WHERE course_id = ?", banner_name, course_id)
 
         for lecture in lectures:
             vdo_link = video_id(lecture["video"])
-            # TODO: Link validation
             vdo_link = youtube_link(vdo_link)
             db.execute("INSERT INTO lectures (course_id, title, video) VALUES (?, ?, ?)", course_id, lecture["title"], vdo_link)
             lecture_id = db.execute("SELECT * FROM lectures WHERE course_id = ? AND title = ? AND video = ?", course_id, lecture["title"], vdo_link)[0]["lecture_id"]
@@ -158,17 +154,20 @@ def course(publisher, title):
         if len(course) == 0:
             return render_template("error.html", code=404, description="Course not found")
         if len(enrolled) != 0:
-            return render_template("error.html", code=405, description="Course already enrolled")
-        db.execute("INSERT INTO enrolled (course_id, student_id) VALUES (?, ?)", id, session["id"])
-        return redirect("/")
+            # return render_template("error.html", code=405, description="Course already enrolled")
+            db.execute("DELETE FROM enrolled WHERE course_id = ? AND student_id = ?", id, session["id"])
+        else:
+            db.execute("INSERT INTO enrolled (course_id, student_id) VALUES (?, ?)", id, session["id"])
+        return redirect(f"/{publisher}/{title}")
     else:
         publisher_id = db.execute("SELECT * FROM users WHERE username = ?", publisher)[0]["user_id"]
         course = db.execute("SELECT * FROM courses WHERE title = ? and publisher_id = ?", title, publisher_id)
         if len(course) == 0:
             return render_template("error.html", code=404, description="Course not found")
-        else:
-            course = course[0]
-            return render_template("course.html", course=course, publisher=publisher, editable=(publisher_id == session["id"]))
+        course = course[0]
+        enrolled = db.execute("SELECT * FROM enrolled WHERE course_id = ? AND student_id = ?", course["course_id"], session["id"])
+        lectures = db.execute("SELECT * FROM lectures WHERE course_id = ?", course["course_id"])
+        return render_template("course.html", course=course, publisher=publisher, enrolled=enrolled, lectures=lectures)
 
 
 @app.route("/course/<id>")
@@ -180,8 +179,8 @@ def course_redirect(id):
         publisher = db.execute("SELECT * FROM users WHERE user_id = ?", course[0]["publisher_id"])[0]["username"]
         return redirect(f"/{publisher}/{course[0]['title']}")
 
-
 @app.route("/<username>")
+@required_login
 def profile(username):
     enrolls = db.execute("SELECT * FROM enrolled WHERE student_id = ?", session["id"])
     enrolls = [enroll["course_id"] for enroll in enrolls]
@@ -189,11 +188,17 @@ def profile(username):
     return render_template("profile.html", courses=courses)
 
 
-@app.route("/<publisher>/<title>/edit", methods=["GET", "POST"])
-def edit_course(publisher, title):
+@app.route("/<publisher>/<courseTitle>/<lectureTitle>")
+def lecture(publisher, courseTitle, lectureTitle):
     publisher_id = db.execute("SELECT * FROM users WHERE username = ?", publisher)[0]["user_id"]
-    course = db.execute("SELECT * FROM courses WHERE title = ? AND publisher_id = ?", title, publisher_id)[0]
-    if request.method == "POST":
-        return render_template("edit-course.html", publisher=publisher, course=course)
-    else:
-        return render_template("edit-course.html", publisher=publisher, course=course)
+    course_id = db.execute("SELECT * FROM courses WHERE publisher_id = ? AND title = ?", publisher_id, courseTitle)[0]["course_id"]
+    lecture = db.execute("SELECT * FROM lectures WHERE course_id = ? AND title = ?", course_id, lectureTitle)[0]
+    materials = db.execute("SELECT * FROM materials WHERE lecture_id = ?", lecture["lecture_id"])
+    app.logger.info(materials)
+    return render_template("lecture.html", publisher=publisher, courseTitle=courseTitle, lecture=lecture, materials=materials)
+
+
+@app.route("/download/<filename>")
+def download(filename):
+    p = f"static/files/{filename}"
+    return send_file(p, as_attachment=True)

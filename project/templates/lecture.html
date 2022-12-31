@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<h3 class="page-headline">{{lecture["title"]}}</h3>
+<nav class="row">
+    <div class="col">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">courses</a></li>
+            <li class="breadcrumb-item"><a href="/{{ publisher }}/{{ courseTitle}}">{{ courseTitle }}</a></li>
+            <li class="breadcrumb-item active">{{ lecture["title"] }}</li>
+        </ol>
+    </div>
+</nav>
+<div class="video-wrapper-container">
+    <div class="video-wrapper">
+        <iframe src="{{ lecture['video'] }}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+</div>
+<div>
+    <ul>
+        {% for material in materials %}
+        <li>
+            <a href="/download/{{ material['name'] }}">Course material</a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

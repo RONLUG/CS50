@@ -2,15 +2,15 @@ from functools import wraps
 from consts import yt_link_pattern
 import secrets
 import os
+from flask import redirect, session
 
 def required_login(f):
-    from flask import session, redirect
     @wraps(f)
-    def wrapper():
+    def wrapper(*args, **kwargs):
         if not session.get("username"):
             return redirect("/login")
         else:
-            return f()
+            return f(*args, **kwargs)
     return wrapper
 
 
@@ -24,11 +24,4 @@ def video_id(link):
 
 def youtube_link(link):
     return "https://www.youtube.com/embed/" + link
-# def save_file(file):
-#     random_hex = secrets.token_hex(8)
-#     _, f_ext = os.path.splitext(file.filename)
-#     f_name = random_hex + f_ext
-#     f_path = os.path.join(app.root_path, 'static/files', f_name)
-#     file.save(f_path)
-#     return f_name
 
